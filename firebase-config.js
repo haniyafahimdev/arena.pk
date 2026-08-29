@@ -17,12 +17,13 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-aut
 // Authentication (Email/Password), then paste that project's config values
 // in below. Full walkthrough in ADMIN-SETUP.md.
 const firebaseConfig = {
-  apiKey: "REPLACE_WITH_YOUR_API_KEY",
-  authDomain: "REPLACE_WITH_YOUR_PROJECT.firebaseapp.com",
-  projectId: "REPLACE_WITH_YOUR_PROJECT_ID",
-  storageBucket: "REPLACE_WITH_YOUR_PROJECT.firebasestorage.app",
-  messagingSenderId: "REPLACE_WITH_YOUR_SENDER_ID",
-  appId: "REPLACE_WITH_YOUR_APP_ID",
+   apiKey: "AIzaSyC1wDo3Aw1I6adSHxm5Xy-QQA7oDIV7a8Y",
+  authDomain: "arena-5bb58.firebaseapp.com",
+  projectId: "arena-5bb58",
+  storageBucket: "arena-5bb58.firebasestorage.app",
+  messagingSenderId: "544167325473",
+  appId: "1:544167325473:web:4d0e63545273854acb9860",
+  measurementId: "G-4E96YTQ2M8"
 };
 
 export const app = initializeApp(firebaseConfig);
