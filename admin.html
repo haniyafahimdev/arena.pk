@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Arena</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<style>
+  body{background:var(--ink-2);}
+  .admin-wrap{max-width:1080px;margin:0 auto;padding:40px 24px 100px;}
+  .admin-header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:32px;flex-wrap:wrap;}
+  .admin-header .logo-img{height:34px;}
+  .admin-logout{background:none;border:1.5px solid var(--line);border-radius:999px;padding:8px 18px;font-weight:800;font-size:13px;cursor:pointer;color:var(--paper);}
+  .login-box{max-width:380px;margin:100px auto;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:36px;box-shadow:var(--shadow-hard);}
+  .login-box h1{font-size:24px;margin-bottom:6px;}
+  .login-box p{font-size:13.5px;color:var(--paper-dim);margin-bottom:24px;}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:11.5px;font-weight:800;letter-spacing:0.05em;text-transform:uppercase;color:var(--paper-dim);margin-bottom:6px;}
+  .field input, .field select, .field textarea{
+    width:100%;padding:11px 13px;border-radius:10px;border:1px solid var(--line);
+    font-family:'Manrope',sans-serif;font-size:14px;color:var(--paper);background:var(--ink);
+  }
+  .field textarea{min-height:70px;resize:vertical;}
+  .err-msg{background:rgba(232,72,63,0.1);color:var(--court);border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:16px;display:none;}
+  .err-msg.show{display:block;}
+  .ok-msg{background:rgba(79,174,59,0.12);color:var(--volt-dim);border-radius:10px;padding:10px 14px;font-size:13px;margin:12px 0;display:none;}
+  .ok-msg.show{display:block;}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:28px;border-bottom:1px solid var(--line);padding-bottom:12px;}
+  .tab-btn{background:none;border:none;padding:9px 16px;border-radius:999px;font-weight:800;font-size:13px;cursor:pointer;color:var(--paper-dim);}
+  .tab-btn.active{background:var(--paper);color:var(--panel);}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+  .admin-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:16px;}
+  .admin-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+  .admin-card h3{font-size:16px;font-family:'Manrope',sans-serif;font-weight:800;margin:0 0 4px;}
+  .admin-card .meta{font-size:12px;color:var(--paper-dim);}
+  .admin-card .desc{font-size:13.5px;color:var(--paper-dim);margin-top:6px;}
+  .pill-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+  .pill{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.04em;padding:4px 10px;border-radius:999px;background:var(--ink-2);color:var(--paper-dim);}
+  .pill.status-pending{background:rgba(245,166,35,0.15);color:var(--gold);}
+  .pill.status-confirmed{background:rgba(79,174,59,0.15);color:var(--volt-dim);}
+  .pill.status-declined{background:rgba(232,72,63,0.12);color:var(--court);}
+  .row-actions{display:flex;gap:8px;flex:none;flex-wrap:wrap;}
+  .row-actions button{
+    font-size:12px;font-weight:800;padding:7px 13px;border-radius:8px;border:1.5px solid var(--line);
+    background:none;cursor:pointer;color:var(--paper);
+  }
+  .row-actions button.danger{color:var(--court);border-color:rgba(232,72,63,0.3);}
+  .row-actions button.go{background:var(--volt);color:var(--panel);border-color:var(--volt);}
+  .add-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .add-form .full{grid-column:1/-1;}
+  .section-title{font-size:20px;font-family:'Anton',sans-serif;text-transform:uppercase;margin:36px 0 14px;}
+  .section-title:first-child{margin-top:0;}
+  .empty-note{font-size:13.5px;color:var(--paper-dim);padding:18px;text-align:center;border:1px dashed var(--line);border-radius:14px;}
+  .hours-editor{display:grid;gap:10px;}
+  .hours-row-edit{display:grid;grid-template-columns:120px 1fr 1fr auto;gap:10px;align-items:center;}
+  .hours-row-edit input[type="text"]{padding:9px 11px;border-radius:8px;border:1px solid var(--line);font-size:13px;}
+  .toggle-label{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;}
+</style>
+</head>
+<body>
+<div class="admin-wrap">
+  <div class="admin-header">
+    <a href="index.html" class="logo"><img class="logo-img" src="assets/img/logo.png" alt="Arena"></a>
+    <button class="admin-logout" id="logoutBtn" style="display:none;">Log Out</button>
+  </div>
+
+  <div id="loginView" class="login-box">
+    <h1>Admin Login</h1>
+    <p>Sign in to manage the buffet menu, bookings, gallery and site settings.</p>
+    <div class="err-msg" id="loginErr"></div>
+    <form id="loginForm">
+      <div class="field">
+        <label for="lEmail">Email</label>
+        <input id="lEmail" type="email" required autocomplete="username">
+      </div>
+      <div class="field">
+        <label for="lPass">Password</label>
+        <input id="lPass" type="password" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn btn-solid" style="width:100%;justify-content:center;">Log In</button>
+    </form>
+    <p style="margin-top:18px;font-size:12px;">No account yet? Create one in Firebase Console → Authentication → Users. See ADMIN-SETUP.md.</p>
+  </div>
+
+  <div id="dashView" style="display:none;">
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="menu">Menu Items</button>
+      <button class="tab-btn" data-tab="pricing">Meal Pricing</button>
+      <button class="tab-btn" data-tab="bookings">Bookings</button>
+      <button class="tab-btn" data-tab="gallery">Gallery</button>
+      <button class="tab-btn" data-tab="settings">Settings</button>
+    </div>
+
+    <!-- MENU ITEMS -->
+    <div class="tab-panel active" id="panel-menu">
+      <div id="menuSeedRow"></div>
+      <div class="ok-msg" id="menuOk"></div>
+      <div class="admin-card">
+        <h3 style="margin-bottom:14px;">Add A Dish Card</h3>
+        <div class="add-form">
+          <div class="field"><label>Meal / Session Tag</label><input id="m-kicker" placeholder="e.g. Dinner, Sunday Brunch, All Sessions"></div>
+          <div class="field"><label>Order</label><input id="m-order" type="number" value="0"></div>
+          <div class="field full"><label>Dish Group Name</label><input id="m-name" placeholder="e.g. Live BBQ &amp; Tandoor"></div>
+          <div class="field full"><label>Description</label><textarea id="m-desc" placeholder="e.g. Reshmi kabab, chicken malai boti, plain naan &amp; taftan."></textarea></div>
+        </div>
+        <button class="btn btn-solid" id="m-add" style="margin-top:8px;">Add Dish Card</button>
+      </div>
+      <div id="menuList"></div>
+    </div>
+
+    <!-- MEAL PRICING -->
+    <div class="tab-panel" id="panel-pricing">
+      <div id="pricingSeedRow"></div>
+      <div class="ok-msg" id="pricingOk"></div>
+      <div class="admin-card">
+        <h3 style="margin-bottom:14px;">Add A Pricing Card</h3>
+        <div class="add-form">
+          <div class="field"><label>Session Name</label><input id="p-name" placeholder="e.g. Dinner"></div>
+          <div class="field"><label>Order</label><input id="p-order" type="number" value="0"></div>
+          <div class="field"><label>Timing</label><input id="p-tier" placeholder="e.g. Mon – Sun · 8:00pm – 12:30am"></div>
+          <div class="field"><label>Price / Head (Rs)</label><input id="p-price" type="number" placeholder="3333"></div>
+          <div class="field"><label>Child Price (Rs, optional)</label><input id="p-childprice" type="number" placeholder="2222"></div>
+          <div class="field"><label>Child Age Range</label><input id="p-childage" placeholder="e.g. 5–10 yrs"></div>
+          <div class="field full"><label>Perks (one per line)</label><textarea id="p-perks" placeholder="Under 5 yrs free (height scale)&#10;3 activity coupons complimentary"></textarea></div>
+        </div>
+        <button class="btn btn-solid" id="p-add" style="margin-top:8px;">Add Pricing Card</button>
+      </div>
+      <div id="pricingList"></div>
+    </div>
+
+    <!-- BOOKINGS -->
+    <div class="tab-panel" id="panel-bookings">
+      <p style="font-size:13.5px;color:var(--paper-dim);margin-bottom:16px;">Every submission from the "Plan Your Visit" form on the live site lands here, newest first.</p>
+      <div id="bookingsList"></div>
+    </div>
+
+    <!-- GALLERY -->
+    <div class="tab-panel" id="panel-gallery">
+      <div class="ok-msg" id="galleryOk"></div>
+      <div class="admin-card">
+        <h3 style="margin-bottom:14px;">Add A Photo</h3>
+        <div class="add-form">
+          <div class="field full"><label>Image URL</label><input id="g-url" placeholder="https://..."></div>
+          <div class="field"><label>Caption</label><input id="g-caption" placeholder="e.g. The Jade Hall, wedding setup"></div>
+          <div class="field"><label>Order</label><input id="g-order" type="number" value="0"></div>
+        </div>
+        <p style="font-size:12px;color:var(--paper-dim);margin-top:6px;">Paste a link to a photo already hosted somewhere (e.g. a shared Google Photos / Drive public link). File upload isn't wired up yet — see ADMIN-SETUP.md if you want that added later.</p>
+        <button class="btn btn-solid" id="g-add" style="margin-top:8px;">Add Photo</button>
+      </div>
+      <div id="galleryList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="tab-panel" id="panel-settings">
+      <div class="ok-msg" id="settingsOk"></div>
+      <div class="admin-card">
+        <h3 style="margin-bottom:14px;">Opening Hours</h3>
+        <div class="hours-editor" id="hoursEditor"></div>
+        <button class="btn btn-ghost" id="addHoursRow" style="margin-top:12px;">+ Add Row</button>
+      </div>
+      <div class="admin-card">
+        <h3 style="margin-bottom:14px;">Contact Info</h3>
+        <div class="add-form">
+          <div class="field"><label>Phone</label><input id="s-phone" placeholder="+92 (21) 9924 5251-54"></div>
+          <div class="field"><label>WhatsApp Number (digits only, with country code)</label><input id="s-whatsapp" placeholder="922199245251"></div>
+          <div class="field full"><label>Email</label><input id="s-email" placeholder="info@arena.net.pk"></div>
+          <div class="field full"><label>Address</label><input id="s-address" placeholder="FEC-01, Habib Ibrahim Rehmatullah Road, Main Karsaz, Karachi"></div>
+        </div>
+      </div>
+      <button class="btn btn-solid" id="saveSettings">Save Settings</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { auth, db } from './firebase-config.js';
+import {
+  signInWithEmailAndPassword, onAuthStateChanged, signOut
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import {
+  collection, query, orderBy, getDocs, addDoc, updateDoc, deleteDoc, doc, getDoc, setDoc, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const loginView = document.getElementById('loginView');
+const dashView = document.getElementById('dashView');
+const logoutBtn = document.getElementById('logoutBtn');
+
+// ---------- Auth ----------
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('lEmail').value.trim();
+  const pass = document.getElementById('lPass').value;
+  const errEl = document.getElementById('loginErr');
+  errEl.classList.remove('show');
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch (err) {
+    errEl.textContent = 'Could not log in — check the email/password, or confirm this Firebase project + user exists (see ADMIN-SETUP.md).';
+    errEl.classList.add('show');
+  }
+});
+
+logoutBtn.addEventListener('click', () => signOut(auth));
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    loginView.style.display = 'none';
+    dashView.style.display = 'block';
+    logoutBtn.style.display = 'inline-block';
+    loadMenu(); loadPricing(); loadBookings(); loadGallery(); loadSettings();
+  } else {
+    loginView.style.display = 'block';
+    dashView.style.display = 'none';
+    logoutBtn.style.display = 'none';
+  }
+});
+
+// ---------- Tabs ----------
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+function flash(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ---------- MENU ITEMS ----------
+const STARTER_MENU = [
+  { kicker: 'Dinner', name: 'Live BBQ & Tandoor', desc: 'Reshmi kabab, chicken malai boti, plain naan & taftan.', order: 1 },
+  { kicker: 'Dinner', name: 'Pakistani Mains', desc: 'Mutton biryani, kunna paya, haleem, Lahori chargah.', order: 2 },
+  { kicker: 'All Sessions', name: 'Chinese & Continental', desc: 'Chowmein, chicken chilli dry, rock n roll chicken, oregano pasta.', order: 3 },
+  { kicker: 'Dessert Bar', name: 'Doodh Dulari & More', desc: 'Gulab jamun, ras malai, chocolate mousse cake, kulfa faluda.', order: 4 },
+  { kicker: 'Lunch / Hi-Tea', name: 'Chaat Counter', desc: 'Gol gappe, chana chaat, dahi bhalay, live seekh kabab.', order: 5 },
+  { kicker: 'Sunday Brunch', name: 'Egg & Pasta Stations', desc: 'Made-to-order omelettes and live pasta of your choice.', order: 6 },
+  { kicker: 'Sunday Brunch', name: 'Zafrani Biryani & Nihari', desc: 'Beef zafrani biryani, mutton paya, Nalli nihari, madrasi prawn.', order: 7 },
+  { kicker: 'Every Table', name: 'Salad & Dressing Bar', desc: 'Russian, seafood & German potato salad with four house dressings.', order: 8 },
+];
+
+async function loadMenu() {
+  const seedRow = document.getElementById('menuSeedRow');
+  const listEl = document.getElementById('menuList');
+  const snap = await getDocs(query(collection(db, 'menuItems'), orderBy('order', 'asc')));
+  seedRow.innerHTML = snap.empty
+    ? '<button class="btn btn-ghost" id="seedMenuBtn" style="margin-bottom:16px;">Load Starter Menu (from the current live site)</button>'
+    : '';
+  if (snap.empty) {
+    document.getElementById('seedMenuBtn').addEventListener('click', async () => {
+      for (const item of STARTER_MENU) {
+        await addDoc(collection(db, 'menuItems'), { ...item, active: true });
+      }
+      flash('menuOk', 'Starter menu loaded.');
+      loadMenu();
+    });
+    listEl.innerHTML = '<div class="empty-note">No dish cards yet. Load the starter menu above, or add your own with the form.</div>';
+    return;
+  }
+  listEl.innerHTML = '';
+  snap.forEach(d => {
+    const m = d.data();
+    const card = document.createElement('div');
+    card.className = 'admin-card';
+    card.innerHTML = `
+      <div class="admin-card-head">
+        <div>
+          <span class="pill">${escapeHtml(m.kicker || '')}</span>
+          <h3 style="margin-top:8px;">${escapeHtml(m.name || '')}</h3>
+          <p class="desc">${escapeHtml(m.desc || '')}</p>
+          <p class="meta" style="margin-top:6px;">Order: ${m.order ?? 0} · ${m.active === false ? 'Hidden' : 'Visible on site'}</p>
+        </div>
+        <div class="row-actions">
+          <button data-act="toggle">${m.active === false ? 'Show' : 'Hide'}</button>
+          <button data-act="delete" class="danger">Delete</button>
+        </div>
+      </div>`;
+    card.querySelector('[data-act="toggle"]').addEventListener('click', async () => {
+      await updateDoc(doc(db, 'menuItems', d.id), { active: m.active === false });
+      loadMenu();
+    });
+    card.querySelector('[data-act="delete"]').addEventListener('click', async () => {
+      if (!confirm('Delete this dish card?')) return;
+      await deleteDoc(doc(db, 'menuItems', d.id));
+      loadMenu();
+    });
+    listEl.appendChild(card);
+  });
+}
+
+document.getElementById('m-add').addEventListener('click', async () => {
+  const kicker = document.getElementById('m-kicker').value.trim();
+  const name = document.getElementById('m-name').value.trim();
+  const desc = document.getElementById('m-desc').value.trim();
+  const order = Number(document.getElementById('m-order').value) || 0;
+  if (!name) return alert('Dish group name is required.');
+  await addDoc(collection(db, 'menuItems'), { kicker, name, desc, order, active: true });
+  document.getElementById('m-kicker').value = '';
+  document.getElementById('m-name').value = '';
+  document.getElementById('m-desc').value = '';
+  flash('menuOk', 'Dish card added.');
+  loadMenu();
+});
+
+// ---------- MEAL PRICING ----------
+const STARTER_PRICING = [
+  { name: 'Dinner', tier: 'Mon – Sun · 8:00pm – 12:30am', price: 3333, childPrice: 2222, childAge: '5–10 yrs', perks: 'Under 5 yrs free (height scale)\n3 activity coupons complimentary', order: 1 },
+  { name: 'Lunch cum Hi-Tea', tier: 'Mon – Sat · 1:30pm – 6:30pm', price: 2333, childPrice: 1555, childAge: '5–10 yrs', perks: '2 activity coupons complimentary\nTwo seatings, Slot A & Slot B', order: 2 },
+  { name: 'Hi-Tea', tier: 'Sunday · 4:30pm – 6:30pm', price: 2222, childPrice: 1444, childAge: '5–10 yrs', perks: '2 activity coupons + squashes\nSunday only', order: 3 },
+  { name: 'Brunch', tier: 'Sunday · 10:30am – 2:30pm', price: 2555, childPrice: 1666, childAge: '5–10 yrs', perks: '3 activity coupons + fresh juice\nTwo seatings, Slot A & Slot B', order: 4 },
+];
+
+async function loadPricing() {
+  const seedRow = document.getElementById('pricingSeedRow');
+  const listEl = document.getElementById('pricingList');
+  const snap = await getDocs(query(collection(db, 'mealPricing'), orderBy('order', 'asc')));
+  seedRow.innerHTML = snap.empty
+    ? '<button class="btn btn-ghost" id="seedPricingBtn" style="margin-bottom:16px;">Load Starter Pricing (from the current live site)</button>'
+    : '';
+  if (snap.empty) {
+    document.getElementById('seedPricingBtn').addEventListener('click', async () => {
+      for (const item of STARTER_PRICING) {
+        await addDoc(collection(db, 'mealPricing'), { ...item, active: true });
+      }
+      flash('pricingOk', 'Starter pricing loaded.');
+      loadPricing();
+    });
+    listEl.innerHTML = '<div class="empty-note">No pricing cards yet. Load the starter pricing above, or add your own.</div>';
+    return;
+  }
+  listEl.innerHTML = '';
+  snap.forEach(d => {
+    const m = d.data();
+    const card = document.createElement('div');
+    card.className = 'admin-card';
+    card.innerHTML = `
+      <div class="admin-card-head">
+        <div>
+          <span class="meta">${escapeHtml(m.tier || '')}</span>
+          <h3 style="margin-top:6px;">${escapeHtml(m.name || '')} — Rs ${m.price ?? '—'}/head</h3>
+          <p class="desc">Child (${escapeHtml(m.childAge || '')}): Rs ${m.childPrice ?? '—'}</p>
+          <div class="pill-row">${(m.perks || '').split('\n').filter(Boolean).map(p => `<span class="pill">${escapeHtml(p)}</span>`).join('')}</div>
+          <p class="meta" style="margin-top:8px;">Order: ${m.order ?? 0} · ${m.active === false ? 'Hidden' : 'Visible on site'}</p>
+        </div>
+        <div class="row-actions">
+          <button data-act="toggle">${m.active === false ? 'Show' : 'Hide'}</button>
+          <button data-act="delete" class="danger">Delete</button>
+        </div>
+      </div>`;
+    card.querySelector('[data-act="toggle"]').addEventListener('click', async () => {
+      await updateDoc(doc(db, 'mealPricing', d.id), { active: m.active === false });
+      loadPricing();
+    });
+    card.querySelector('[data-act="delete"]').addEventListener('click', async () => {
+      if (!confirm('Delete this pricing card?')) return;
+      await deleteDoc(doc(db, 'mealPricing', d.id));
+      loadPricing();
+    });
+    listEl.appendChild(card);
+  });
+}
+
+document.getElementById('p-add').addEventListener('click', async () => {
+  const name = document.getElementById('p-name').value.trim();
+  const tier = document.getElementById('p-tier').value.trim();
+  const price = Number(document.getElementById('p-price').value) || 0;
+  const childPrice = Number(document.getElementById('p-childprice').value) || null;
+  const childAge = document.getElementById('p-childage').value.trim();
+  const perks = document.getElementById('p-perks').value.trim();
+  const order = Number(document.getElementById('p-order').value) || 0;
+  if (!name) return alert('Session name is required.');
+  await addDoc(collection(db, 'mealPricing'), { name, tier, price, childPrice, childAge, perks, order, active: true });
+  ['p-name','p-tier','p-price','p-childprice','p-childage','p-perks'].forEach(id => document.getElementById(id).value = '');
+  flash('pricingOk', 'Pricing card added.');
+  loadPricing();
+});
+
+// ---------- BOOKINGS ----------
+async function loadBookings() {
+  const listEl = document.getElementById('bookingsList');
+  const snap = await getDocs(query(collection(db, 'bookings'), orderBy('createdAt', 'desc')));
+  if (snap.empty) {
+    listEl.innerHTML = '<div class="empty-note">No enquiries yet. They\'ll show up here as soon as someone submits the "Plan Your Visit" form on the site.</div>';
+    return;
+  }
+  listEl.innerHTML = '';
+  snap.forEach(d => {
+    const b = d.data();
+    const status = b.status || 'pending';
+    const when = b.createdAt?.toDate ? b.createdAt.toDate().toLocaleString() : '';
+    const card = document.createElement('div');
+    card.className = 'admin-card';
+    card.innerHTML = `
+      <div class="admin-card-head">
+        <div>
+          <span class="pill status-${status}">${status}</span>
+          <h3 style="margin-top:8px;">${escapeHtml(b.name || 'No name')} · ${escapeHtml(b.phone || '')}</h3>
+          <p class="desc">${escapeHtml(b.interest || '')} — ${escapeHtml(b.preferredDate || 'no date given')} — ${b.guestCount ? b.guestCount + ' guests' : ''}</p>
+          ${b.message ? `<p class="desc">"${escapeHtml(b.message)}"</p>` : ''}
+          <p class="meta" style="margin-top:6px;">Submitted ${when}</p>
+        </div>
+        <div class="row-actions">
+          <button data-act="confirm" class="go">Confirm</button>
+          <button data-act="decline">Decline</button>
+        </div>
+      </div>`;
+    card.querySelector('[data-act="confirm"]').addEventListener('click', async () => {
+      await updateDoc(doc(db, 'bookings', d.id), { status: 'confirmed' });
+      loadBookings();
+    });
+    card.querySelector('[data-act="decline"]').addEventListener('click', async () => {
+      await updateDoc(doc(db, 'bookings', d.id), { status: 'declined' });
+      loadBookings();
+    });
+    listEl.appendChild(card);
+  });
+}
+
+// ---------- GALLERY ----------
+async function loadGallery() {
+  const listEl = document.getElementById('galleryList');
+  const snap = await getDocs(query(collection(db, 'gallery'), orderBy('order', 'asc')));
+  if (snap.empty) {
+    listEl.innerHTML = '<div class="empty-note" style="grid-column:1/-1;">No photos yet. Add one above — it\'ll show up in the site gallery once that\'s wired in.</div>';
+    return;
+  }
+  listEl.innerHTML = '';
+  snap.forEach(d => {
+    const g = d.data();
+    const card = document.createElement('div');
+    card.className = 'admin-card';
+    card.style.padding = '10px';
+    card.innerHTML = `
+      <img src="${escapeAttr(g.url || '')}" alt="" style="width:100%;height:120px;object-fit:cover;border-radius:10px;margin-bottom:8px;" onerror="this.style.opacity=0.2">
+      <p class="meta">${escapeHtml(g.caption || '')}</p>
+      <button data-act="delete" class="danger" style="margin-top:8px;font-size:12px;font-weight:800;padding:6px 12px;border-radius:8px;border:1.5px solid rgba(232,72,63,0.3);background:none;cursor:pointer;color:var(--court);">Delete</button>`;
+    card.querySelector('[data-act="delete"]').addEventListener('click', async () => {
+      if (!confirm('Delete this photo?')) return;
+      await deleteDoc(doc(db, 'gallery', d.id));
+      loadGallery();
+    });
+    listEl.appendChild(card);
+  });
+}
+
+document.getElementById('g-add').addEventListener('click', async () => {
+  const url = document.getElementById('g-url').value.trim();
+  const caption = document.getElementById('g-caption').value.trim();
+  const order = Number(document.getElementById('g-order').value) || 0;
+  if (!url) return alert('Image URL is required.');
+  await addDoc(collection(db, 'gallery'), { url, caption, order });
+  document.getElementById('g-url').value = '';
+  document.getElementById('g-caption').value = '';
+  flash('galleryOk', 'Photo added.');
+  loadGallery();
+});
+
+// ---------- SETTINGS ----------
+const DEFAULT_HOURS = [
+  { day: 'Mon – Thu', hours: '1:30pm – 1:30am' },
+  { day: 'Fri & Sat', hours: '1:30pm – 1:30am' },
+  { day: 'Sunday', hours: '11:30am – 1:30am' },
+];
+
+function renderHoursEditor(hours) {
+  const el = document.getElementById('hoursEditor');
+  el.innerHTML = '';
+  hours.forEach((row, i) => {
+    const r = document.createElement('div');
+    r.className = 'hours-row-edit';
+    r.innerHTML = `
+      <input type="text" value="${escapeAttr(row.day)}" data-field="day" placeholder="Days">
+      <input type="text" value="${escapeAttr(row.hours)}" data-field="hours" placeholder="Opening hours">
+      <span></span>
+      <button data-act="remove" style="border:none;background:none;color:var(--court);cursor:pointer;font-weight:800;">✕</button>`;
+    r.querySelector('[data-act="remove"]').addEventListener('click', () => { r.remove(); });
+    el.appendChild(r);
+  });
+}
+
+document.getElementById('addHoursRow').addEventListener('click', () => {
+  const el = document.getElementById('hoursEditor');
+  const r = document.createElement('div');
+  r.className = 'hours-row-edit';
+  r.innerHTML = `
+    <input type="text" value="" data-field="day" placeholder="Days">
+    <input type="text" value="" data-field="hours" placeholder="Opening hours">
+    <span></span>
+    <button data-act="remove" style="border:none;background:none;color:var(--court);cursor:pointer;font-weight:800;">✕</button>`;
+  r.querySelector('[data-act="remove"]').addEventListener('click', () => { r.remove(); });
+  el.appendChild(r);
+});
+
+async function loadSettings() {
+  const snap = await getDoc(doc(db, 'settings', 'site'));
+  const s = snap.exists() ? snap.data() : {};
+  renderHoursEditor(s.hours && s.hours.length ? s.hours : DEFAULT_HOURS);
+  document.getElementById('s-phone').value = s.phone || '+92 (21) 9924 5251-54';
+  document.getElementById('s-whatsapp').value = s.whatsapp || '922199245251';
+  document.getElementById('s-email').value = s.email || 'info@arena.net.pk';
+  document.getElementById('s-address').value = s.address || 'FEC-01, Habib Ibrahim Rehmatullah Road, Next to Bahria Auditorium, Main Karsaz, Karachi';
+}
+
+document.getElementById('saveSettings').addEventListener('click', async () => {
+  const hours = Array.from(document.querySelectorAll('.hours-row-edit')).map(r => ({
+    day: r.querySelector('[data-field="day"]').value.trim(),
+    hours: r.querySelector('[data-field="hours"]').value.trim(),
+  })).filter(r => r.day || r.hours);
+  const data = {
+    hours,
+    phone: document.getElementById('s-phone').value.trim(),
+    whatsapp: document.getElementById('s-whatsapp').value.trim(),
+    email: document.getElementById('s-email').value.trim(),
+    address: document.getElementById('s-address').value.trim(),
+    updatedAt: serverTimestamp(),
+  };
+  await setDoc(doc(db, 'settings', 'site'), data);
+  flash('settingsOk', 'Settings saved — this now drives the live site.');
+});
+
+// ---------- helpers ----------
+function escapeHtml(str) {
+  return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function escapeAttr(str) { return escapeHtml(str); }
+</script>
+</body>
+</html>

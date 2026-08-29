@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 375" width="600" height="375">
+  <defs>
+    <linearGradient id="turqBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0e2a2f"/>
+      <stop offset="100%" stop-color="#081a1d"/>
+    </linearGradient>
+    <radialGradient id="turqGlow" cx="50%" cy="30%" r="75%">
+      <stop offset="0%" stop-color="#2e9fd6" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#2e9fd6" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="turqDrape" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2e9fd6" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#2e9fd6" stop-opacity="0.05"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="375" fill="url(#turqBg)"/>
+  <rect width="600" height="375" fill="url(#turqGlow)"/>
+  <!-- floor -->
+  <rect x="0" y="300" width="600" height="75" fill="#061417"/>
+  <!-- draped ceiling swags -->
+  <path d="M0,0 Q150,60 300,10 T600,0 V0 H0 Z" fill="url(#turqDrape)"/>
+  <path d="M0,0 Q150,50 300,5 T600,0" fill="none" stroke="#5fd1e8" stroke-width="1.5" opacity="0.5"/>
+  <!-- round tables, top-down -->
+  <g opacity="0.9">
+    <circle cx="150" cy="230" r="46" fill="#0c2226" stroke="#5fd1e8" stroke-width="1.5" opacity="0.7"/>
+    <circle cx="150" cy="230" r="30" fill="none" stroke="#f5a623" stroke-width="1" opacity="0.6"/>
+    <circle cx="320" cy="255" r="50" fill="#0c2226" stroke="#5fd1e8" stroke-width="1.5" opacity="0.7"/>
+    <circle cx="320" cy="255" r="32" fill="none" stroke="#f5a623" stroke-width="1" opacity="0.6"/>
+    <circle cx="470" cy="215" r="42" fill="#0c2226" stroke="#5fd1e8" stroke-width="1.5" opacity="0.7"/>
+    <circle cx="470" cy="215" r="27" fill="none" stroke="#f5a623" stroke-width="1" opacity="0.6"/>
+  </g>
+  <!-- chandelier hints -->
+  <g stroke="#f5a623" stroke-width="1" opacity="0.7">
+    <line x1="150" y1="0" x2="150" y2="50"/>
+    <circle cx="150" cy="55" r="5" fill="#f5a623"/>
+    <line x1="320" y1="0" x2="320" y2="65"/>
+    <circle cx="320" cy="70" r="6" fill="#f5a623"/>
+    <line x1="470" y1="0" x2="470" y2="45"/>
+    <circle cx="470" cy="50" r="4.5" fill="#f5a623"/>
+  </g>
+  <!-- turquoise light beams -->
+  <g opacity="0.25">
+    <polygon points="0,0 60,0 10,375 -60,375" fill="#5fd1e8"/>
+    <polygon points="560,0 620,0 660,375 590,375" fill="#5fd1e8"/>
+  </g>
+  <text x="30" y="335" font-family="Manrope, sans-serif" font-size="12" letter-spacing="2" fill="#7fe0f0" font-weight="700">HALL 03</text>
+  <text x="30" y="360" font-family="Anton, sans-serif" font-size="26" fill="#ffffff">THE TURQUOISE</text>
+</svg>
