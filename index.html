@@ -229,25 +229,25 @@
     <div class="eyebrow">Plan Your Visit</div>
     <h2 style="font-size:clamp(30px,4vw,44px);margin-top:10px;max-width:640px;">Tell us what you're planning — we'll get back to you same day.</h2>
     <div class="visit-grid" style="display:grid;grid-template-columns:1.1fr 0.9fr;gap:28px;margin-top:34px;">
-      <form class="enquiry" action="mailto:info@arena.net.pk" method="get" enctype="text/plain">
+      <form class="enquiry" autocomplete="on">
         <h3>Enquiry Form</h3>
         <p class="hint">This opens your email app addressed to our team — for an instant reply, use WhatsApp instead.</p>
         <div class="enquiry-grid">
           <div>
             <label for="v-name">Name</label>
-            <input id="v-name" name="Name" type="text" required placeholder="Your name">
+            <input id="v-name" name="Name" type="text" required autocomplete="name" placeholder="Your name">
           </div>
           <div>
             <label for="v-phone">Phone</label>
-            <input id="v-phone" name="Phone" type="tel" required placeholder="03xx xxxxxxx">
+            <input id="v-phone" name="Phone" type="tel" required autocomplete="tel" placeholder="03xx xxxxxxx">
           </div>
           <div>
             <label for="v-date">Preferred Date</label>
-            <input id="v-date" name="Preferred date" type="date">
+            <input id="v-date" name="Preferred date" type="date" autocomplete="off">
           </div>
           <div>
             <label for="v-guests">Guest Count</label>
-            <input id="v-guests" name="Guest count" type="number" min="1" placeholder="e.g. 150">
+            <input id="v-guests" name="Guest count" type="number" min="1" autocomplete="off" placeholder="e.g. 150">
           </div>
           <div class="full">
             <label for="v-interest">I'm interested in</label>
